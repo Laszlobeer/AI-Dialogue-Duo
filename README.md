@@ -2,7 +2,6 @@
 
 Welcome to **AI Dialogue Duo**! This Flask-powered web app connects two AI models to discuss any topic in real-time, creating a dynamic and engaging conversation.
 
-[![Demo](https://img.shields.io/badge/Demo-live-brightgreen?style=flat\&logo=appveyor)](https://github.com/Laszlobeer/AI-Dialogue-Duo/tree/main)
 [![Buy Me a Coffee](https://img.shields.io/badge/☕️-Buy%20Me%20a%20Coffee-yellow?style=flat\&logo=ko-fi)](https://ko-fi.com/laszlobeer)
 
 ---
