@@ -8,7 +8,9 @@ Welcome to **AI Dialogue Duo**, now exclusively powered only by [Ollama](https:/
 ---
 ### 🎬 Preview
 
-![Demo](https://i.imgur.com/AbCdEfg.gifv)
+
+
+![Demo](video/Screen%20Capture_select-area_20250623231153.gif)
 
 
 
