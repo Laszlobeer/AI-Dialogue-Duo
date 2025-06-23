@@ -6,7 +6,7 @@ Welcome to **AI Dialogue Duo**, now exclusively powered only by [Ollama](https:/
 [![Buy Me a Coffee](https://img.shields.io/badge/☕️-Buy%20Me%20a%20Coffee-yellow?style=flat\&logo=ko-fi)](https://ko-fi.com/laszlobeer)
 
 ---
-![App Preview](video/Screen Capture_select-area_20250623231153.gif)
+![Demo](https://yourhost.com/path/to/demo.gif)
 
 
 ## 🚀 Features
