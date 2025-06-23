@@ -42,7 +42,7 @@ Welcome to **AI Dialogue Duo**! This Flask-powered web app connects two AI model
 
 ## 🧩 Usage
 
-1. Choose two AI models from the dropdowns.
+1. Choose two AI models useing ollama from the dropdowns.
 2. Enter a discussion topic.
 3. Set the number of turns per model.
 4. Click **Start Discussion** and enjoy the conversation!
