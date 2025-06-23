@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Discussion Panel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            /* Base variables */
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --success: #4cc9f0;
+            --dark: #4895ef;
+            --light: #f8f9fa;
+            --bg-color: #f5f7fb;
+            --panel-bg: #ffffff;
+            --text-color: #333333;
+            --border-color: #e0e0e0;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --model1-color: #4361ee;
+            --model2-color: #4caf50;
+            --system-color: #ffc107;
+            --message-gap: 18px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            position: relative;
+        }
+        
+        .logo {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            color: #6c757d;
+            max-width: 600px;
+            margin: 0 auto 20px;
+        }
+        
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        @media (max-width: 900px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .panel {
+            background: var(--panel-bg);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+        
+        .control-panel {
+            padding: 30px;
+        }
+        
+        .conversation-panel {
+            display: flex;
+            flex-direction: column;
+            height: 75vh;
+        }
+        
+        .panel-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .panel-title i {
+            font-size: 1.2rem;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: var(--text-color);
+            font-size: 0.95rem;
+        }
+        
+        select, input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 1rem;
+            background: var(--panel-bg);
+            color: var(--text-color);
+            transition: all 0.3s;
+        }
+        
+        select:focus, input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+        
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(67, 97, 238, 0.25);
+        }
+        
+        .btn-secondary {
+            background-color: #f1f3f9;
+            color: var(--text-color);
+            margin-top: 15px;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #e2e6f3;
+        }
+        
+        .conversation-container {
+            flex: 1;
+            padding: 25px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: var(--message-gap);
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary) var(--panel-bg);
+        }
+        
+        .conversation-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .conversation-container::-webkit-scrollbar-track {
+            background: var(--panel-bg);
+        }
+        
+        .conversation-container::-webkit-scrollbar-thumb {
+            background-color: var(--primary);
+            border-radius: 4px;
+        }
+        
+        /* Updated Message Bubbles */
+        .message {
+            padding: 16px 20px;
+            border-radius: 18px;
+            animation: fadeIn 0.3s ease;
+            position: relative;
+            max-width: 85%;
+            line-height: 1.6;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        
+        .model1 {
+            background: rgba(67, 97, 238, 0.08);
+            align-self: flex-start;
+            border-radius: 18px 18px 18px 4px;
+        }
+        
+        .model2 {
+            background: rgba(76, 175, 80, 0.08);
+            align-self: flex-end;
+            border-radius: 18px 18px 4px 18px;
+        }
+        
+        .system {
+            background: rgba(255, 193, 7, 0.08);
+            text-align: center;
+            align-self: center;
+            border-radius: 18px;
+        }
+        
+        .model-tag {
+            font-weight: 600;
+            font-size: 0.8rem;
+            opacity: 0.8;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .typing-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            background: rgba(0,0,0,0.05);
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin-top: 8px;
+        }
+        
+        .typing-dot {
+            width: 6px;
+            height: 6px;
+            background: currentColor;
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: pulse 1.2s infinite;
+        }
+        
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6c757d;
+            font-size: 1.1rem;
+        }
+        
+        .loading i {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            color: var(--primary);
+            animation: pulse 1.5s infinite;
+        }
+        
+        .error {
+            color: #dc3545;
+            padding: 15px;
+            background-color: rgba(220, 53, 69, 0.08);
+            border-radius: 12px;
+            margin-top: 15px;
+            border-left: 4px solid #dc3545;
+            font-size: 0.95rem;
+        }
+        
+        .themes {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .theme-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+        
+        .theme-btn::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent);
+            pointer-events: none;
+        }
+        
+        .theme-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .theme-btn.active {
+            border-color: var(--text-color);
+            box-shadow: 0 0 0 2px var(--primary);
+        }
+        
+        /* Minimal Modern Themes */
+        .theme-light {
+            background: linear-gradient(135deg, #f0f4f8, #ffffff);
+        }
+        
+        .theme-slate {
+            background: linear-gradient(135deg, #e2e8f0, #f1f5f9);
+        }
+        
+        .theme-sand {
+            background: linear-gradient(135deg, #f5f0e6, #faf7f2);
+        }
+        
+        .theme-mist {
+            background: linear-gradient(135deg, #edf2f7, #f7fafc);
+        }
+        
+        .theme-charcoal {
+            background: linear-gradient(135deg, #2d3748, #4a5568);
+        }
+        
+        /* Theme Overrides */
+        /* Theme 1: Light */
+        body.theme-light {
+            --primary: #3b82f6;
+            --secondary: #2563eb;
+            --model1-color: #3b82f6;
+            --model2-color: #10b981;
+            --system-color: #f59e0b;
+            --bg-color: #f8fafc;
+            --panel-bg: #ffffff;
+            --text-color: #1e293b;
+            --border-color: #e2e8f0;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+        }
+        
+        /* Theme 2: Slate */
+        body.theme-slate {
+            --primary: #64748b;
+            --secondary: #475569;
+            --model1-color: #64748b;
+            --model2-color: #0d9488;
+            --system-color: #f59e0b;
+            --bg-color: #f1f5f9;
+            --panel-bg: #ffffff;
+            --text-color: #1e293b;
+            --border-color: #cbd5e1;
+            --shadow: 0 4px 18px rgba(0, 0, 0, 0.02);
+        }
+        
+        /* Theme 3: Sand */
+        body.theme-sand {
+            --primary: #d97706;
+            --secondary: #b45309;
+            --model1-color: #d97706;
+            --model2-color: #0d9488;
+            --system-color: #8b5cf6;
+            --bg-color: #fef3c7;
+            --panel-bg: #fffdf6;
+            --text-color: #44403c;
+            --border-color: #e7e5e4;
+            --shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+        }
+        
+        /* Theme 4: Mist */
+        body.theme-mist {
+            --primary: #8b5cf6;
+            --secondary: #7c3aed;
+            --model1-color: #8b5cf6;
+            --model2-color: #ec4899;
+            --system-color: #0ea5e9;
+            --bg-color: #f5f3ff;
+            --panel-bg: #ffffff;
+            --text-color: #1e293b;
+            --border-color: #ede9fe;
+            --shadow: 0 4px 18px rgba(139, 92, 246, 0.05);
+        }
+        
+        /* Theme 5: Charcoal */
+        body.theme-charcoal {
+            --primary: #60a5fa;
+            --secondary: #3b82f6;
+            --model1-color: #60a5fa;
+            --model2-color: #34d399;
+            --system-color: #fbbf24;
+            --bg-color: #1f2937;
+            --panel-bg: #2d3748;
+            --text-color: #e2e8f0;
+            --border-color: #4a5568;
+            --shadow: 0 4px 25px rgba(0, 0, 0, 0.25);
+        }
+        
+        body.theme-charcoal .message {
+            background-color: rgba(255, 255, 255, 0.08);
+        }
+        
+        body.theme-charcoal .model1 {
+            background: rgba(96, 165, 250, 0.15);
+        }
+        
+        body.theme-charcoal .model2 {
+            background: rgba(52, 211, 153, 0.15);
+        }
+        
+        body.theme-charcoal .system {
+            background: rgba(251, 191, 36, 0.15);
+        }
+        
+        body.theme-charcoal .typing-indicator {
+            background: rgba(255,255,255,0.1);
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.5; transform: scale(0.95); }
+            50% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0.5; transform: scale(0.95); }
+        }
+    </style>
+</head>
+<body class="theme-light">
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-robot"></i>
+            </div>
+            <h1>AI Discussion Panel</h1>
+            <p class="subtitle">Connect two AI models to discuss any topic. Watch the conversation unfold in real-time.</p>
+            
+            <div class="themes">
+                <div class="theme-btn theme-light active" data-theme="light" title="Light Theme"></div>
+                <div class="theme-btn theme-slate" data-theme="slate" title="Slate Theme"></div>
+                <div class="theme-btn theme-sand" data-theme="sand" title="Sand Theme"></div>
+                <div class="theme-btn theme-mist" data-theme="mist" title="Mist Theme"></div>
+                <div class="theme-btn theme-charcoal" data-theme="charcoal" title="Charcoal Theme"></div>
+            </div>
+        </header>
+        
+        <div class="content">
+            <div class="panel control-panel">
+                <h2 class="panel-title"><i class="fas fa-sliders-h"></i> Control Panel</h2>
+                
+                <div class="form-group">
+                    <label for="model1"><i class="fas fa-brain"></i> First AI Model:</label>
+                    <select id="model1">
+                        <option value="">-- Select Model --</option>
+                        {% for model in models %}
+                        <option value="{{ model }}">{{ model }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="model2"><i class="fas fa-brain"></i> Second AI Model:</label>
+                    <select id="model2">
+                        <option value="">-- Select Model --</option>
+                        {% for model in models %}
+                        <option value="{{ model }}">{{ model }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="topic"><i class="fas fa-comments"></i> Discussion Topic:</label>
+                    <input type="text" id="topic" placeholder="Enter discussion topic...">
+                </div>
+                
+                <div class="form-group">
+                    <label for="turns"><i class="fas fa-exchange-alt"></i> Number of Turns (per model):</label>
+                    <input type="number" id="turns" min="1" max="10" value="3">
+                </div>
+                
+                <button id="start-btn" class="btn btn-primary">
+                    <i class="fas fa-play"></i> Start Discussion
+                </button>
+                <button id="refresh-btn" class="btn btn-secondary">
+                    <i class="fas fa-sync-alt"></i> Refresh Models
+                </button>
+                
+                <div id="error-container" class="error" style="display: none;"></div>
+            </div>
+            
+            <div class="panel conversation-panel">
+                <h2 class="panel-title" style="padding: 25px 25px 0;"><i class="fas fa-comment-dots"></i> Conversation</h2>
+                <div class="conversation-container" id="conversation-container">
+                    <div class="message system">
+                        <div class="model-tag"><i class="fas fa-info-circle"></i> System</div>
+                        <div class="message-content">Select two AI models and enter a discussion topic to begin.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>AI Discussion Panel &copy; 2023 | Powered by Ollama</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const startBtn = document.getElementById('start-btn');
+            const refreshBtn = document.getElementById('refresh-btn');
+            const conversationContainer = document.getElementById('conversation-container');
+            const errorContainer = document.getElementById('error-container');
+            const themeButtons = document.querySelectorAll('.theme-btn');
+            
+            // Theme switching
+            themeButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const theme = this.getAttribute('data-theme');
+                    
+                    // Remove all theme classes
+                    document.body.classList.remove('theme-light', 'theme-slate', 'theme-sand', 
+                                                  'theme-mist', 'theme-charcoal');
+                    
+                    // Add selected theme
+                    document.body.classList.add(`theme-${theme}`);
+                    
+                    // Update active button
+                    themeButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+            
+            startBtn.addEventListener('click', startDiscussion);
+            refreshBtn.addEventListener('click', refreshModels);
+            
+            function refreshModels() {
+                fetch('/')
+                    .then(response => response.text())
+                    .then(html => {
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+                        const newModels = doc.querySelectorAll('#model1 option');
+                        
+                        // Update model dropdowns
+                        updateDropdown('model1', newModels);
+                        updateDropdown('model2', newModels);
+                        
+                        // Show success message
+                        const conversationContainer = document.getElementById('conversation-container');
+                        conversationContainer.innerHTML = `
+                            <div class="message system">
+                                <div class="model-tag"><i class="fas fa-info-circle"></i> System</div>
+                                <div class="message-content">AI models list has been refreshed successfully.</div>
+                            </div>
+                        `;
+                    })
+                    .catch(error => {
+                        showError('Failed to refresh models');
+                    });
+            }
+            
+            function updateDropdown(dropdownId, options) {
+                const dropdown = document.getElementById(dropdownId);
+                const currentValue = dropdown.value;
+                
+                // Clear existing options
+                while (dropdown.options.length > 0) {
+                    dropdown.remove(0);
+                }
+                
+                // Add new options
+                options.forEach(option => {
+                    const newOption = document.createElement('option');
+                    newOption.value = option.value;
+                    newOption.textContent = option.textContent;
+                    dropdown.appendChild(newOption);
+                });
+                
+                // Restore previous selection if still available
+                if (currentValue) {
+                    dropdown.value = currentValue;
+                }
+            }
+            
+            function startDiscussion() {
+                const ai1Name = document.getElementById('model1').value;
+                const ai2Name = document.getElementById('model2').value;
+                const topic = document.getElementById('topic').value;
+                const turns = document.getElementById('turns').value;
+                
+                // Validation
+                if (!ai1Name || !ai2Name) {
+                    showError('Please select both AI models');
+                    return;
+                }
+                
+                if (!topic.trim()) {
+                    showError('Please enter a discussion topic');
+                    return;
+                }
+                
+                // Clear conversation and show loading
+                conversationContainer.innerHTML = `
+                    <div class="message system">
+                        <div class="model-tag"><i class="fas fa-info-circle"></i> System</div>
+                        <div class="message-content">Starting discussion about: <strong>${topic}</strong></div>
+                    </div>
+                `;
+                
+                hideError();
+                
+                // Store models in closure for event handler
+                const model1 = ai1Name;
+                const model2 = ai2Name;
+                
+                // Create a new EventSource connection
+                const eventSource = new EventSource(`/discuss-stream?model1=${encodeURIComponent(ai1Name)}&model2=${encodeURIComponent(ai2Name)}&topic=${encodeURIComponent(topic)}&turns=${turns}`);
+                
+                let currentMessageDiv = null;
+                let currentModel = null;
+                
+                eventSource.onmessage = function(event) {
+                    const data = JSON.parse(event.data);
+                    
+                    switch(data.type) {
+                        case 'system':
+                            addSystemMessage(data.content);
+                            break;
+                        case 'turn_start':
+                            currentModel = data.model;
+                            currentMessageDiv = createMessageElement(currentModel, '', model1, model2);
+                            break;
+                        case 'chunk':
+                            if (currentMessageDiv) {
+                                appendToMessage(currentMessageDiv, data.content);
+                                scrollToBottom();
+                            }
+                            break;
+                        case 'turn_end':
+                            currentMessageDiv = null;
+                            scrollToBottom();
+                            break;
+                        case 'error':
+                            showError(data.content);
+                            eventSource.close();
+                            break;
+                    }
+                };
+                
+                eventSource.onerror = function() {
+                    eventSource.close();
+                    showError('Connection error. Please try again.');
+                };
+            }
+            
+            function addSystemMessage(content) {
+                const messageDiv = document.createElement('div');
+                messageDiv.classList.add('message', 'system');
+                messageDiv.innerHTML = `
+                    <div class="model-tag"><i class="fas fa-info-circle"></i> System</div>
+                    <div class="message-content">${content}</div>
+                `;
+                conversationContainer.appendChild(messageDiv);
+                scrollToBottom();
+            }
+            
+            function createMessageElement(model, content, model1Name, model2Name) {
+                const messageDiv = document.createElement('div');
+                messageDiv.classList.add('message');
+                messageDiv.classList.add(model === model1Name ? 'model1' : 'model2');
+                
+                const modelTag = document.createElement('div');
+                modelTag.classList.add('model-tag');
+                modelTag.innerHTML = `<i class="fas fa-robot"></i> ${model}`;
+                
+                const contentDiv = document.createElement('div');
+                contentDiv.classList.add('message-content');
+                contentDiv.textContent = content;
+                
+                messageDiv.appendChild(modelTag);
+                messageDiv.appendChild(contentDiv);
+                
+                conversationContainer.appendChild(messageDiv);
+                scrollToBottom();
+                
+                return messageDiv;
+            }
+            
+            function appendToMessage(messageElement, content) {
+                const contentDiv = messageElement.querySelector('.message-content');
+                if (contentDiv) {
+                    contentDiv.textContent += content;
+                }
+            }
+            
+            function scrollToBottom() {
+                conversationContainer.scrollTop = conversationContainer.scrollHeight;
+            }
+            
+            function showError(message) {
+                errorContainer.textContent = message;
+                errorContainer.style.display = 'block';
+            }
+            
+            function hideError() {
+                errorContainer.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
