@@ -512,6 +512,16 @@
                 </div>
                 
                 <div class="form-group">
+                    <label for="style"><i class="fas fa-comment-dots"></i> Discussion Style:</label>
+                    <select id="style">
+                        <option value="discuss">Discuss (Neutral)</option>
+                        <option value="debate">Debate (Opposing Views)</option>
+                        <option value="agree">Agree (Find Consensus)</option>
+                        <option value="theorize">Theorize (Build Ideas)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
                     <label for="turns"><i class="fas fa-exchange-alt"></i> Number of Turns (per model):</label>
                     <input type="number" id="turns" min="1" max="10" value="3">
                 </div>
@@ -625,6 +635,7 @@
                 const ai2Name = document.getElementById('model2').value;
                 const topic = document.getElementById('topic').value;
                 const turns = document.getElementById('turns').value;
+                const style = document.getElementById('style').value;
                 
                 // Validation
                 if (!ai1Name || !ai2Name) {
@@ -641,7 +652,7 @@
                 conversationContainer.innerHTML = `
                     <div class="message system">
                         <div class="model-tag"><i class="fas fa-info-circle"></i> System</div>
-                        <div class="message-content">Starting discussion about: <strong>${topic}</strong></div>
+                        <div class="message-content">Starting ${getStyleName(style)} about: <strong>${topic}</strong></div>
                     </div>
                 `;
                 
@@ -652,7 +663,7 @@
                 const model2 = ai2Name;
                 
                 // Create a new EventSource connection
-                const eventSource = new EventSource(`/discuss-stream?model1=${encodeURIComponent(ai1Name)}&model2=${encodeURIComponent(ai2Name)}&topic=${encodeURIComponent(topic)}&turns=${turns}`);
+                const eventSource = new EventSource(`/discuss-stream?model1=${encodeURIComponent(ai1Name)}&model2=${encodeURIComponent(ai2Name)}&topic=${encodeURIComponent(topic)}&turns=${turns}&style=${encodeURIComponent(style)}`);
                 
                 let currentMessageDiv = null;
                 let currentModel = null;
@@ -689,6 +700,16 @@
                     eventSource.close();
                     showError('Connection error. Please try again.');
                 };
+            }
+            
+            function getStyleName(style) {
+                const styles = {
+                    'discuss': 'discussion',
+                    'debate': 'debate',
+                    'agree': 'consensus-building',
+                    'theorize': 'theory-building'
+                };
+                return styles[style] || 'discussion';
             }
             
             function addSystemMessage(content) {

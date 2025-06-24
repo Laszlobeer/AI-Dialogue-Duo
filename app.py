@@ -86,6 +86,27 @@ def generate_response_stream(model, prompt, context=None):
     except requests.exceptions.RequestException:
         return None
 
+def get_prompt(style, topic, previous_message, turn_index):
+    """Generate appropriate prompt based on discussion style"""
+    if turn_index == 0:
+        if style == "debate":
+            return f"Debate the topic: '{topic}'. Take a strong position and present your argument in a single concise paragraph. End with two newlines."
+        elif style == "agree":
+            return f"Find common ground on the topic: '{topic}'. Start the conversation with a positive and agreeable statement in a single concise paragraph. End with two newlines."
+        elif style == "theorize":
+            return f"Theorize about the topic: '{topic}'. Present an initial idea or theory in a single concise paragraph. End with two newlines."
+        else:  # discuss
+            return f"Discuss the topic: '{topic}'. Start the conversation with a single concise paragraph. End with two newlines."
+    else:
+        if style == "debate":
+            return f"Counter the previous argument: '{previous_message}'. Present your opposing view concisely. End with two newlines."
+        elif style == "agree":
+            return f"The previous speaker said: '{previous_message}'. Reply positively and build consensus. End with two newlines."
+        elif style == "theorize":
+            return f"Building on the previous idea: '{previous_message}'. Expand the theory concisely. End with two newlines."
+        else:  # discuss
+            return f"Continue discussing '{topic}'. Previous message: '{previous_message}'. Reply concisely. End with two newlines."
+
 @app.route('/')
 def index():
     """Main page with model selection"""
@@ -100,6 +121,7 @@ def discuss():
     model2 = data.get('model2')
     topic = data.get('topic')
     turns = int(data.get('turns', 2))
+    style = data.get('style', 'discuss')
     
     if not model1 or not model2 or not topic:
         return jsonify({"error": "Missing required parameters"}), 400
@@ -109,7 +131,7 @@ def discuss():
     context2 = None
     
     # First model initiates the conversation
-    first_prompt = f"Discuss the topic: '{topic}'. Start the conversation with a single concise paragraph. End your response with two newlines when you're finished."
+    first_prompt = get_prompt(style, topic, None, 0)
     result1 = generate_response(model1, first_prompt)
     
     if not result1:
@@ -126,12 +148,12 @@ def discuss():
     for turn in range(1, turns * 2):
         try:
             if turn % 2 == 1:  # Model2's turn
-                prompt = f"Continue discussing '{topic}'. Previous message: {conversation[-1]['text']}\n\nReply concisely and end with two newlines when finished."
+                prompt = get_prompt(style, topic, conversation[-1]['text'], turn)
                 result = generate_response(model2, prompt, context2)
                 model_name = model2
                 context_var = context2
             else:  # Model1's turn
-                prompt = f"Continue discussing '{topic}'. Previous message: {conversation[-1]['text']}\n\nReply concisely and end with two newlines when finished."
+                prompt = get_prompt(style, topic, conversation[-1]['text'], turn)
                 result = generate_response(model1, prompt, context1)
                 model_name = model1
                 context_var = context1
@@ -166,6 +188,7 @@ def discuss_stream():
     model2 = request.args.get('model2')
     topic = request.args.get('topic')
     turns = request.args.get('turns', default=2, type=int)
+    style = request.args.get('style', default='discuss', type=str)
     
     if not model1 or not model2 or not topic:
         def error_generator():
@@ -175,16 +198,23 @@ def discuss_stream():
     def generate():
         try:
             # Initial system message
-            yield f"data: {json.dumps({'type': 'system', 'content': f'Starting discussion about: {topic}'})}\n\n"
+            style_names = {
+                "discuss": "discussion",
+                "debate": "debate",
+                "agree": "consensus-building",
+                "theorize": "theory-building"
+            }
+            style_name = style_names.get(style, "discussion")
+            yield f"data: {json.dumps({'type': 'system', 'content': f'Starting {style_name} about: {topic}'})}\n\n"
             
             context1 = None
             context2 = None
+            full_response = ""
             
             # First model initiates conversation
-            prompt1 = f"Discuss the topic: '{topic}'. Start with a single concise paragraph. End with two newlines."
+            prompt1 = get_prompt(style, topic, None, 0)
             yield f"data: {json.dumps({'type': 'turn_start', 'model': model1, 'turn': 0})}\n\n"
             
-            full_response = ""
             gen = generate_response_stream(model1, prompt1, context1)
             try:
                 while True:
@@ -201,7 +231,7 @@ def discuss_stream():
                 current_model = model2 if turn % 2 == 1 else model1
                 context = context2 if turn % 2 == 1 else context1
                 
-                prompt = f"Continue discussing '{topic}'. Previous message: {full_response}\n\nReply concisely and end with two newlines."
+                prompt = get_prompt(style, topic, full_response, turn)
                 
                 yield f"data: {json.dumps({'type': 'turn_start', 'model': current_model, 'turn': turn})}\n\n"
                 
