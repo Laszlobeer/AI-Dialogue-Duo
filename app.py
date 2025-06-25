@@ -34,7 +34,10 @@ def generate_response(model, prompt, context=None):
         "prompt": prompt,
         "stream": False,
         "context": context or [],
-        "options": {"stop": ["\n\n"]}
+        "options": {
+            "stop": ["\n\n"],
+            "num_ctx": 5000  # Increased context size
+        }
     }
     
     try:
@@ -60,7 +63,10 @@ def generate_response_stream(model, prompt, context=None):
         "prompt": prompt,
         "stream": True,
         "context": context or [],
-        "options": {"stop": ["\n\n"]}
+        "options": {
+            "stop": ["\n\n"],
+            "num_ctx": 5000  # Increased context size
+        }
     }
     
     try:
