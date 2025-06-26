@@ -24,7 +24,7 @@ Welcome to **AI Dialogue Duo**, now exclusively powered only by [Ollama](https:/
 
 ## 🛠️ Prerequisites
 
-* **Ollama CLI**: Make sure you have the [Ollama CLI](https://ollama.com/docs/cli-install) installed and authenticated.
+* **Ollama**: Make sure you have the [Ollama CLI](https://ollama.com/) installed and authenticated.
 * **Python 3.8+**
 
 ## ⚙️ Installation
