@@ -3,8 +3,6 @@
 Welcome to **AI Dialogue Duo**, now exclusively powered only by [Ollama](https://ollama.com)! This Flask-based app uses two Ollama models to engage in real-time conversations on any topic.
 
 
-[![Buy Me a Coffee](https://img.shields.io/badge/☕️-Buy%20Me%20a%20Coffee-yellow?style=flat\&logo=ko-fi)](https://ko-fi.com/laszlobeer)
-
 ---
 ### 🎬 Preview
 
@@ -99,7 +97,6 @@ export OLLAMA_API_KEY=<your-api-key>
 
 If you enjoy this project, consider buying me a coffee:
 
-[![Buy Me a Coffee](https://img.shields.io/badge/☕️-Buy%20Me%20a%20Coffee-yellow?style=flat\&logo=ko-fi)](https://ko-fi.com/laszlobeer)
 
 Thank you for your support! 😊
 
